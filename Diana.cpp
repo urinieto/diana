@@ -71,11 +71,6 @@ GLsizei g_last_width = g_width;
 GLsizei g_last_height = g_height;
 
 // global audio vars
-SAMPLE g_fft_buffer[DNA_FFT_SIZE];
-SAMPLE g_audio_buffer[DNA_BUFFER_SIZE]; // latest mono buffer (possibly preview)
-SAMPLE g_stereo_buffer[DNA_BUFFER_SIZE*2]; // current stereo buffer (now playing)
-SAMPLE g_back_buffer[DNA_BUFFER_SIZE]; // for lissajous
-SAMPLE g_cur_buffer[DNA_BUFFER_SIZE];  // current mono buffer (now playing), for lissajous
 GLfloat g_window[DNA_BUFFER_SIZE]; // DFT transform window
 GLfloat g_log_positions[DNA_FFT_SIZE/2]; // precompute positions for log spacing
 GLint g_buffer_size = DNA_BUFFER_SIZE;
@@ -147,20 +142,22 @@ GLdouble g_log_factor = 1;
 GLboolean g_ready = FALSE;
 Mutex g_mutex;
 
-// osc port
-long g_osc_port = 8888;
 GLfloat g_size_x = 2.8;
 GLfloat g_size_y = 2;
 GLfloat g_size_z = 2;
+
 // fill mode
 GLenum g_fillmode = GL_FILL;
+
 // light 0 position
 GLfloat g_light0_pos[4] = { 2.0f, 1.2f, 4.0f, 1.0f };
+
 // light 1 parameters
 GLfloat g_light1_ambient[] = { .2f, .2f, .2f, 1.0f };
 GLfloat g_light1_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat g_light1_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat g_light1_pos[4] = { -2.0f, 0.0f, -4.0f, 1.0f };
+
 // fullscreen
 GLboolean g_fullscreen = FALSE;
 // draw empty
@@ -1266,7 +1263,7 @@ void displayFunc( )
   
   // Draw the rotating background time-domain,
   // Before doing the other rotations and applying the window
-  drawRotatingTimeDomain(buffer);
+  // drawRotatingTimeDomain(buffer);
   
   // apply the transform window
   apply_window( (float*)buffer, g_window, g_buffer_size );
