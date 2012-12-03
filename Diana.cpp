@@ -1261,7 +1261,7 @@ void displayFunc( )
   
   // Draw the rotating background time-domain,
   // Before doing the other rotations and applying the window
-  // drawRotatingTimeDomain(buffer);
+  drawRotatingTimeDomain(buffer);
   
   // apply the transform window
   apply_window( (float*)buffer, g_window, g_buffer_size );
