@@ -60,10 +60,6 @@ using namespace std;
 typedef double  MY_TYPE;
 typedef char BYTE;   // 8-bit unsigned entity.
 
-SAMPLE g_freq = 440;
-SAMPLE g_t = 0;
-
-
 // width and height of the window
 GLsizei g_width = 800;
 GLsizei g_height = 600;
