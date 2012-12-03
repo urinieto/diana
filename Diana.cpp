@@ -372,7 +372,6 @@ int main( int argc, char *argv[] )
   
   // Initialize PortAudio
   PaStream *stream;
-  PaError err;
   initialize_audio(stream);
   
   // make the transform window
