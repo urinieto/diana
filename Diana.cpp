@@ -241,6 +241,9 @@ static int paCallback( const void *inputBuffer,
   // Lock mutex
   g_mutex.lock();
 
+  // Zero-out the outputbuffer
+  memset( obuffy, 0.0f, sizeof(SAMPLE)*framesPerBuffer );
+
   //Copy the input buffer to our g_buffer
   for( int i = 0; i < framesPerBuffer; i++ )
   {
