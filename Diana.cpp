@@ -16,7 +16,12 @@
 #include <portaudio.h>
 
 // FFT
-#include "fft.h"
+#ifdef __ACCELERATE_FFT__
+    #include <Accelerate/Accelerate.h>
+#else
+    #include "fft.h"
+#endif
+    
 
 // Mutex
 #include "Thread.h"
@@ -56,9 +61,11 @@ using namespace std;
 #define INC_VAL_MOUSE           1.0f
 #define INC_VAL_KB              .75f
 #define MONO                    1
+#define cmp_abs(x) ( sqrt( (x).re * (x).re + (x).im * (x).im ) )
 
 typedef double  MY_TYPE;
 typedef char BYTE;   // 8-bit unsigned entity.
+typedef struct { float re ; float im ; } my_complex;
 
 // width and height of the window
 GLsizei g_width = 800;
@@ -224,6 +231,37 @@ void help()
   fprintf( stderr, "'q' - quit\n" );
   fprintf( stderr, "----------------------------------------------------\n" );
   fprintf( stderr, "\n" );
+}
+
+//-----------------------------------------------------------------------------
+// name: hanning()
+// desc: make window
+//-----------------------------------------------------------------------------
+void hanning( float * window, unsigned long length )
+{
+    unsigned long i;
+    double pi, phase = 0, delta;
+
+    pi = 4.*atan(1.0);
+    delta = 2 * pi / (double) length;
+
+    for( i = 0; i < length; i++ )
+    {
+        window[i] = (float)(0.5 * (1.0 - cos(phase)));
+        phase += delta;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// name: apply_window()
+// desc: apply a window to data
+//-----------------------------------------------------------------------------
+void apply_window( float * data, float * window, unsigned long length )
+{
+    unsigned long i;
+
+    for( i = 0; i < length; i++ )
+        data[i] *= window[i];
 }
 
 //-----------------------------------------------------------------------------
@@ -693,10 +731,34 @@ double pitch_estimation(SAMPLE *x) {
   autoCorrelation(X, g_fft_size/2);
   
   // Take the DFT of the autocorrelated signal
-  rfft( (SAMPLE *)X, g_fft_size/2, FFT_FORWARD );
+
+#ifdef __ACCELERATE_FFT__
+  // Start Accelerate
+  FFTSetup fft_weights;
+  DSPSplitComplex input;
+  SAMPLE *magnitudes;
+  fft_weights = vDSP_create_fftsetup(log2(g_fft_size), kFFTRadix2);
+
+  input.realp = (SAMPLE *)malloc(g_fft_size * sizeof(SAMPLE));
+  input.imagp = (SAMPLE *)malloc(g_fft_size * sizeof(SAMPLE));
+  magnitudes = (SAMPLE *)malloc(g_fft_size * sizeof(SAMPLE));
+
+  for (int currentInputSampleIndex = 0; currentInputSampleIndex < g_fft_size; currentInputSampleIndex++)
+  {
+        input.realp[currentInputSampleIndex] = (float)X[currentInputSampleIndex];
+        input.imagp[currentInputSampleIndex] = 0.0f;
+  }
+
+  /* 1D in-place complex FFT */
+  vDSP_fft_zip(fft_weights, &input, 1, log2(g_fft_size), FFT_FORWARD); 
   
   // cast to complex
-  complex * cbuf = (complex *)X;
+  my_complex * cbuf = (my_complex *)&input;
+  // End of Accelerate
+#else
+  rfft( (SAMPLE *)X, g_fft_size/2, FFT_FORWARD );
+  my_complex * cbuf = (my_complex *)X;
+#endif
   
   SAMPLE max = 0;
   int max_index = 0;
@@ -1134,7 +1196,7 @@ void drawScrollingTimeDomain(SAMPLE *buffer) {
 // Name: void drawSpectrumWt(complex *cbuf)
 // Desc: Draws the Spectrum Waterfall in the bottom of the screen
 //-----------------------------------------------------------------------------
-void drawSpectrumWt(complex *cbuf) {
+void drawSpectrumWt(my_complex *cbuf) {
   //init vars
   GLfloat x = -5.0f;
   GLint y = -1.0f;
@@ -1292,10 +1354,39 @@ void displayFunc( )
       drawScrollingTimeDomain(buffer);
       
       // take forward FFT; result in buffer as FFT_SIZE/2 complex values
-      rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
-      
-      // cast to complex
-      complex * cbuf = (complex *)buffer;
+#ifdef __ACCELERATE_FFT__
+  FFTSetup fft_weights;
+  DSPSplitComplex input;
+  SAMPLE *magnitudes;
+  fft_weights = vDSP_create_fftsetup(log2(g_fft_size), kFFTRadix2);
+
+  input.realp = (SAMPLE *)malloc(g_fft_size * sizeof(SAMPLE));
+  input.imagp = (SAMPLE *)malloc(g_fft_size * sizeof(SAMPLE));
+
+  for (int currentInputSampleIndex = 0; currentInputSampleIndex < g_fft_size; currentInputSampleIndex++)
+  {
+        input.realp[currentInputSampleIndex] = (float)buffer[currentInputSampleIndex];
+        input.imagp[currentInputSampleIndex] = 0.0f;
+  }
+
+  /* 1D in-place complex FFT */
+  vDSP_fft_zip(fft_weights, &input, 1, log2(g_fft_size), FFT_FORWARD); 
+  
+  float coef = 0.7;
+  for (int i = 0; i < g_fft_size/2; i++) {
+    buffer[2*i] = coef*input.realp[i];
+    buffer[2*i+1] = coef*input.imagp[i];
+  }
+  buffer[0] = buffer[1] = 0;
+
+  free(input.realp);
+  free(input.imagp);
+#else
+  rfft( (SAMPLE *)buffer, g_fft_size/2, FFT_FORWARD );
+#endif    
+  
+      // Cast to Complex
+      my_complex * cbuf = (my_complex *)buffer;
       
       // Draw Spectrum Waterfall
       drawSpectrumWt(cbuf);

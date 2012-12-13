@@ -18,20 +18,20 @@
 // name: hanning()
 // desc: make window
 //-----------------------------------------------------------------------------
-void hanning( float * window, unsigned long length )
-{
-    unsigned long i;
-    double pi, phase = 0, delta;
-
-    pi = 4.*atan(1.0);
-    delta = 2 * pi / (double) length;
-
-    for( i = 0; i < length; i++ )
-    {
-        window[i] = (float)(0.5 * (1.0 - cos(phase)));
-        phase += delta;
-    }
-}
+//void hanning( float * window, unsigned long length )
+//{
+//    unsigned long i;
+//    double pi, phase = 0, delta;
+//
+//    pi = 4.*atan(1.0);
+//    delta = 2 * pi / (double) length;
+//
+//    for( i = 0; i < length; i++ )
+//    {
+//        window[i] = (float)(0.5 * (1.0 - cos(phase)));
+//        phase += delta;
+//    }
+//}
 
 
 
@@ -83,13 +83,13 @@ void blackman( float * window, unsigned long length )
 // name: apply_window()
 // desc: apply a window to data
 //-----------------------------------------------------------------------------
-void apply_window( float * data, float * window, unsigned long length )
-{
-    unsigned long i;
-
-    for( i = 0; i < length; i++ )
-        data[i] *= window[i];
-}
+//void apply_window( float * data, float * window, unsigned long length )
+//{
+//    unsigned long i;
+//
+//    for( i = 0; i < length; i++ )
+//        data[i] *= window[i];
+//}
 
 static float PI ;
 static float TWOPI ;

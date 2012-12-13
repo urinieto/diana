@@ -1,6 +1,6 @@
-CXX=g++ -D__MACOSX_CORE__ 
-FLAGS=-c -g -Wall
-LIBS=-framework OpenGL -framework GLUT -lportaudio
+CXX=g++ -D__MACOSX_CORE__ -D__ACCELERATE_FFT__ 
+FLAGS=-c -Wall
+LIBS=-framework Accelerate -framework OpenGL -framework GLUT -lportaudio
 
 OBJS=fft.o Diana.o Thread.o
 
