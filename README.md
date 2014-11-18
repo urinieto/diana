@@ -1,48 +1,28 @@
-*****************************************************************
-* DIANA                                                         *
-* Dynamic Interactive Audio and Noise Analyzer                  *
-* by Uri Nieto                                                  *
-* 2009-12                                                       *
-* New York University                                           *
-* Stanford University                                           *
-*                                                               *
-*                                                               *
-* README file                                                   *
-*****************************************************************
+#DIANA#
+* Dynamic Interactive Audio and Noise Analyzer
+* Uri Nieto
+* 2009-14
+* New York University
+* Stanford University
 
-README Contents:
+#REQUIREMENTS#
 
-- SYSTEM REQUIREMENTS
-- BUILDING THE PROJECT
-- USAGE
-- DESCRIPTION
-- IMPLEMENTATION
+* Mac OS X 10.4 or higher
+* PortAudio (http://www.portaudio.com/)
 
-*********************************************************
+#BUILDING THE PROJECT#
 
-REQUIREMENTS
+From the directory where the files of the tgz are, type the following:
 
--Mac OS X 10.4 or higher
--PortAudio (http://www.portaudio.com/)
-
-*********************************************************
-
-BUILDING THE PROJECT
-
-From the directory where the files of the tgz are, type the 
-following:
-
-make
+    make
 
 This should compile and generate the Diana binary.
 
-*********************************************************
+#USAGE#
 
-USAGE
+To run `Diana' type (from the `Diana' directory):
 
-To run Diana type (from the Diana directory):
-
-./Diana
+    ./Diana
 
 These are the different possible options while running Diana:
 
@@ -54,9 +34,7 @@ These are the different possible options while running Diana:
 'q' - quit
 ----------------------------------------------------
 
-*********************************************************
-
-DESCRIPTION
+#DESCRIPTION#
 
 Diana is a small piece of software that analyzes noise and audio
 and displays it in a nice 3d window. It also estimates the pitch
@@ -73,7 +51,7 @@ At the moment, Diana only runs on Mac OS X 10.4 or higher.
 
 Diana has 2 different running modes: Signal and Keyboard
 
-- Signal Mode
+##Signal Mode##
 
 This is the default mode, and it prints 4 different signals on
 the screen, all of them being read from your default input.
@@ -93,7 +71,7 @@ You can rotate this view by pressing any cursor arrows. All
 signals will rotate except the one in the back, which will stay
 still creating this "speed of light" effect.
 
-- Keyboard Mode
+##Keyboard Mode##
 
 This mode shows a midi keyboard in the screen and it will 
 estimate the pitch from the signal being read and map it to the
@@ -105,9 +83,7 @@ To toggle between Fullscreen mode press 'f'.
 
 By default, the Signal Mode is on and the fullscreen is off.
 
-********************************************************
-
-IMPLEMENTATION
+#IMPLEMENTATION#
 
 The tough part of the implementation is based on the graphics to
 display the signal read by the default input. However, it is
@@ -129,7 +105,7 @@ We can divide the implementation of the display function into
 5 different parts: Windowed Time-Domain, Rotating Time-Domain,
 Scrolling Time-Domain, Spectrum Waterfall, Pitch Detection.
 
-- Windowed Time-Domain
+##Windowed Time-Domain##
 
 In order to display the windowed time domain (the green signal in
 the top of the screen), we must apply the window first to our
@@ -160,7 +136,7 @@ of the signals.
 The function to draw the windowed time-domain signal is:
 void drawWindowedTimeDomain(SAMPLE *buffer);
 
-- Rotating Time-Domain
+##Rotating Time-Domain##
 
 This signal is the one in the background, the one that creates
 this sensation of "Speed of Light". In this case, we don't want 
@@ -180,7 +156,7 @@ the effect is stronger.
 The function to draw the rotating time-domain signal is:
 void drawRotatingTimeDomain(SAMPLE *buffer);
 
-- Scrolling Time-Domain
+##Scrolling Time-Domain##
 
 We will need a new buffer in order to store the information to be
 displayed in the screen. This buffer will be much bigger, and the size
@@ -198,8 +174,8 @@ So it's 60 times bigger than the buffer size (which is 1024).
 This buffer will be a "circular" buffer, and to do so we will use 
 to different indices:
 
-int g_scroll_reader;
-int g_scroll_writer;
+    int g_scroll_reader;
+    int g_scroll_writer;
 
 At every refresh of the screen, we will copy the input buffer into
 our scrolling buffer in the position where the g_scroll_writer says.
@@ -211,18 +187,18 @@ We will draw the scrolling time-domain using standard OpenGL. The
 code is found in this function:
 void drawScrollingTimeDomain(SAMPLE *buffer);
 
-- Spectrum Waterfall
+##Spectrum Waterfall##
 
 We will use a similar system to the one used in sound peek in order
 to implement the spectrum waterfall. We will first of all apply the
 FFT to our buffer. We will use the libraries from chuck_fft to do
 so:
 
-// take forward FFT; result in buffer as FFT_SIZE/2 complex values
-rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
-      
-// cast to complex
-complex * cbuf = (complex *)buffer;
+    // take forward FFT; result in buffer as FFT_SIZE/2 complex values
+    rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
+        
+    // cast to complex
+    complex * cbuf = (complex *)buffer;
 
 We cast to complex to compute the spectrum in an easy way.
 
@@ -230,11 +206,11 @@ We will make use of a global variable called g_spectrums, which
 is an array of spectrums. We will make use of Pt2D, which is a 
 point in 2D with the following structure:
 
-struct Pt2D { float x; float y; };
+    struct Pt2D { float x; float y; };
 
 So our g_spectrums is:
 
-Pt2D ** g_spectrums;
+    Pt2D ** g_spectrums;
 
 We will first set our g_spectrums to zero, with a depth of 
 48. Then, in every refresh, we will read from the complex buffer
@@ -246,7 +222,7 @@ visual effect of the waterfall.
 The code in order to draw the spectrum waterfall is found in:
 void drawSpectrumWt(complex *cbuf);
 
-- Pitch Detection
+##Pitch Detection##
 
 The pitch detection will be done before any rotation, like the
 "Speed of Light", so that it won't rotate even though the rest
@@ -257,29 +233,27 @@ Then, I read the autocorrelated buffer and interpolate the max peak
 and assign it to a real note. The real note has an error of +1/-1
 semitone. This is done in the function:
 
-void getNote(double pitch);
+    void getNote(double pitch);
 
 In order to show the Midi Keyboard, I used the Textures options
 from OpenGL. To load the textures, I implemented the following
 function:
 
-GLuint LoadTextureRAW( const char * filename, int wrap );
+    GLuint LoadTextureRAW( const char * filename, int wrap );
 
 The whole implementation in order to draw the midi keyboard
 and get the pitch is found in:
 
-// Draw the Keyboard
-drawKeyboard();
-  
-// Get the Pitch and assign to keyboard key
-getPitchAndAssignToKeyboard(buffer);
+    // Draw the Keyboard
+    drawKeyboard();
+    
+    // Get the Pitch and assign to keyboard key
+    getPitchAndAssignToKeyboard(buffer);
 
 There is a small pitch stability algorithm that will only take
 in consideration the pitches that are constant in 4 continuous
 time-windowed buffers. This makes the pitch detection
 much more stable.
-
-----
 
 
 The hardest part of this assignment was the OpenGL part, since
@@ -290,7 +264,6 @@ The other difficult part was to stay away from it, since in the
 end I considered this project my "little son" and I couldn't stop
 adding new features.
 
-********************************************************
 
 Have fun!
 uri
@@ -298,4 +271,4 @@ uri
 oriol@nyu.edu
 MARL
 New York University
-2012
+2014
