@@ -111,8 +111,8 @@ buffer where the signal is stored. We must first define our window
 type. This will only be done once, and that is why it is found in 
 the main function. Here is the code to do that:
 
-// make the transform window
-hanning( g_window, g_buffer_size );
+    // make the transform window
+    hanning( g_window, g_buffer_size );
 
 The hanning function is found in the chuck_fft code, extracted
 from sndpeek. The window type then, is the hanning window.
@@ -121,8 +121,8 @@ Now that we have defined our window, we can apply it to our
 signal, this will be done in the display function, so every time
 the screen is refreshed:
 
-// apply the transform window
-apply_window( (float*)buffer, g_window, g_buffer_size );
+    // apply the transform window
+    apply_window( (float*)buffer, g_window, g_buffer_size );
 
 This apply_window is also found in the chuck_fft code.
 
