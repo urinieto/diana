@@ -26,13 +26,11 @@ To run `Diana' type (from the `Diana' directory):
 
 These are the different possible options while running Diana:
 
-----------------------------------------------------
-'h' - print help message
-'f' - toggle fullscreen
-'k' - toggle signal / keyboard mode
-'CURSOR ARROWS' - rotate signal view
-'q' - quit
-----------------------------------------------------
+    'h' - print help message
+    'f' - toggle fullscreen
+    'k' - toggle signal / keyboard mode
+    'CURSOR ARROWS' - rotate signal view
+    'q' - quit
 
 #DESCRIPTION#
 
