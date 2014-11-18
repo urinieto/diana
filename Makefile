@@ -1,4 +1,5 @@
-CXX=g++ -D__MACOSX_CORE__ -D__ACCELERATE_FFT__ 
+#CXX=g++ -D__MACOSX_CORE__ -D__ACCELERATE_FFT__ 
+CXX=g++ -D__MACOSX_CORE__ -Wno-deprecated
 FLAGS=-c -Wall
 LIBS=-framework Accelerate -framework OpenGL -framework GLUT -lportaudio
 

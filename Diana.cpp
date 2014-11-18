@@ -2,7 +2,7 @@
 /*
  Diana.cpp
  Dynamic Interactive Audio and Noise Analyzer
- by Uri Nieto, 2009-12
+ by Oriol Nieto, 2009-14
  
 */
 /******************************************/
@@ -221,7 +221,7 @@ void help()
   fprintf( stderr, "----------------------------------------------------\n" );
   fprintf( stderr, "Diana (1.1)\n" );
   fprintf( stderr, "Dynamic Interactive Audio and Noise Analyzer\n" );
-  fprintf( stderr, "by Uri Nieto, 2009-12\n" );
+  fprintf( stderr, "by Oriol Nieto, 2009-14\n" );
   fprintf( stderr, "New York University -- Stanford University\n" );
   fprintf( stderr, "----------------------------------------------------\n" );
   fprintf( stderr, "'h' - print this help message\n" );
